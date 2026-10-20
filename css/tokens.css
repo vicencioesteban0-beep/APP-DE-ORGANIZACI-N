@@ -1,0 +1,157 @@
+:root {
+  /* ─── Palette ───────────────────────────────────────── */
+  --c-bg:          #F9F7F4;
+  --c-surface:     #FFFFFF;
+  --c-surface-2:   #F2F0EC;
+  --c-border:      #E5E2DB;
+  --c-border-2:    #CCC9BF;
+
+  --c-text:        #1A1A2A;
+  --c-text-2:      #5A5868;
+  --c-text-3:      #9B98A6;
+
+  --c-primary:     #1D4ED8;
+  --c-primary-h:   #1E40AF;
+  --c-primary-bg:  #EFF6FF;
+
+  /* Status */
+  --c-done:        #15803D;
+  --c-done-bg:     #F0FDF4;
+  --c-wait:        #B45309;
+  --c-wait-bg:     #FFFBEB;
+  --c-active:      #7C3AED;
+  --c-active-bg:   #F5F3FF;
+  --c-replan:      #B91C1C;
+  --c-replan-bg:   #FEF2F2;
+  --c-sched:       #1D4ED8;
+  --c-sched-bg:    #EFF6FF;
+
+  /* Semaphore */
+  --c-green:       #15803D;
+  --c-amber:       #B45309;
+  --c-red:         #B91C1C;
+
+  /* Block types */
+  --c-prod-alta:   #1E3A8A;
+  --c-prod-media:  #1D4ED8;
+  --c-coord:       #C2410C;
+  --c-comprobacion:#15803D;
+  --c-rutina:      #6B7280;
+  --c-pausa:       #D1D5DB;
+  --c-margen:      #0F766E;
+
+  /* ─── Spacing (8px grid) ─────────────────────────────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* ─── Typography ──────────────────────────────────────── */
+  --font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
+
+  --fs-xs:   11px;
+  --fs-sm:   13px;
+  --fs-base: 15px;
+  --fs-md:   17px;
+  --fs-lg:   20px;
+  --fs-xl:   24px;
+  --fs-2xl:  30px;
+
+  --fw-normal:   400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  /* ─── Radius ──────────────────────────────────────────── */
+  --r-sm:   4px;
+  --r-md:   8px;
+  --r-lg:   12px;
+  --r-xl:   16px;
+  --r-full: 9999px;
+
+  /* ─── Shadows ─────────────────────────────────────────── */
+  --sh-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --sh-md:  0 4px 8px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
+  --sh-lg:  0 12px 24px rgba(0,0,0,.1);
+
+  /* ─── Layout ──────────────────────────────────────────── */
+  --nav-w:     220px;
+  --nav-h-mob: 60px;
+  --content-max: 820px;
+
+  /* ─── Motion ──────────────────────────────────────────── */
+  --ease: 200ms ease;
+  --ease-slow: 350ms ease;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --c-bg:         #0E0E1A;
+    --c-surface:    #181826;
+    --c-surface-2:  #22222F;
+    --c-border:     #2E2E42;
+    --c-border-2:   #404058;
+    --c-text:       #EEEEF8;
+    --c-text-2:     #9B99AF;
+    --c-text-3:     #6B698A;
+    --c-primary:    #4D79FF;
+    --c-primary-h:  #6B8EFF;
+    --c-primary-bg: #111828;
+    --c-done:       #4ADE80;
+    --c-done-bg:    #071A0F;
+    --c-wait:       #FCD34D;
+    --c-wait-bg:    #1A1100;
+    --c-active:     #C4B5FD;
+    --c-active-bg:  #130E28;
+    --c-replan:     #FCA5A5;
+    --c-replan-bg:  #1A0707;
+    --c-sched:      #93C5FD;
+    --c-sched-bg:   #071020;
+    --c-prod-alta:  #93C5FD;
+    --c-prod-media: #4D79FF;
+    --c-coord:      #FB923C;
+    --c-comprobacion:#4ADE80;
+    --c-rutina:     #9CA3AF;
+    --c-pausa:      #374151;
+    --c-margen:     #2DD4BF;
+  }
+}
+
+:root[data-theme="dark"] {
+  --c-bg:         #0E0E1A;
+  --c-surface:    #181826;
+  --c-surface-2:  #22222F;
+  --c-border:     #2E2E42;
+  --c-border-2:   #404058;
+  --c-text:       #EEEEF8;
+  --c-text-2:     #9B99AF;
+  --c-text-3:     #6B698A;
+  --c-primary:    #4D79FF;
+  --c-primary-h:  #6B8EFF;
+  --c-primary-bg: #111828;
+  --c-done:       #4ADE80;
+  --c-done-bg:    #071A0F;
+  --c-wait:       #FCD34D;
+  --c-wait-bg:    #1A1100;
+  --c-active:     #C4B5FD;
+  --c-active-bg:  #130E28;
+  --c-replan:     #FCA5A5;
+  --c-replan-bg:  #1A0707;
+  --c-sched:      #93C5FD;
+  --c-sched-bg:   #071020;
+  --c-prod-alta:  #93C5FD;
+  --c-prod-media: #4D79FF;
+  --c-coord:      #FB923C;
+  --c-comprobacion:#4ADE80;
+  --c-rutina:     #9CA3AF;
+  --c-pausa:      #374151;
+  --c-margen:     #2DD4BF;
+}

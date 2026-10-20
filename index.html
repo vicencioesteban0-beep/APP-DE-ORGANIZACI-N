@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="description" content="Planificador personal de proyectos para diseñadores instruccionales">
+  <title>Planificador ID</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav id="nav" role="navigation" aria-label="Navegación principal">
+    <div class="nav__brand">
+      <span class="nav__brand-icon">📋</span>
+      <span class="nav__brand-name">Planificador</span>
+    </div>
+    <ul class="nav__list">
+      <li>
+        <a class="nav-link" href="#hoy" data-nav="#hoy" aria-label="Hoy">
+          <span class="nav-link__icon">⏰</span>
+          <span class="nav-link__label">Hoy</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link" href="#semana" data-nav="#semana" aria-label="Semana">
+          <span class="nav-link__icon">📅</span>
+          <span class="nav-link__label">Semana</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link" href="#portafolio" data-nav="#portafolio" aria-label="Portafolio">
+          <span class="nav-link__icon">🗂️</span>
+          <span class="nav-link__label">Portafolio</span>
+        </a>
+      </li>
+      <li>
+        <a class="nav-link" href="#config" data-nav="#config" aria-label="Configuración">
+          <span class="nav-link__icon">⚙️</span>
+          <span class="nav-link__label">Config</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main content area -->
+  <main id="main" role="main" aria-live="polite">
+    <div class="loading">Iniciando…</div>
+  </main>
+
+  <!-- FAB (Floating Action Button) -->
+  <button class="fab" id="fab" aria-label="Agregar tarea" onclick="Views.Forms.nuevaTarea()">
+    <span class="fab__icon">+</span>
+  </button>
+
+  <!-- Modal overlay -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div id="modal-container" class="modal-container hidden"></div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- Core modules (order matters: DB → Utils → Capacidad → Plantillas → Views → App) -->
+  <script src="js/db.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/capacidad.js"></script>
+  <script src="js/plantillas.js"></script>
+
+  <!-- Views -->
+  <script src="js/views/forms.js"></script>
+  <script src="js/views/hoy.js"></script>
+  <script src="js/views/semana.js"></script>
+  <script src="js/views/portafolio.js"></script>
+  <script src="js/views/proyecto.js"></script>
+  <script src="js/views/subproyecto.js"></script>
+  <script src="js/views/config.js"></script>
+
+  <!-- App router (last) -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>
