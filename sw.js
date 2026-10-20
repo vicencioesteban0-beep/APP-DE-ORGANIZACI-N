@@ -1,25 +1,26 @@
 const CACHE_NAME = 'planificador-v1';
+const BASE = self.registration.scope;
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/css/tokens.css',
-  '/css/app.css',
-  '/js/db.js',
-  '/js/utils.js',
-  '/js/capacidad.js',
-  '/js/plantillas.js',
-  '/js/views/forms.js',
-  '/js/views/hoy.js',
-  '/js/views/semana.js',
-  '/js/views/portafolio.js',
-  '/js/views/proyecto.js',
-  '/js/views/subproyecto.js',
-  '/js/views/config.js',
-  '/js/app.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
-];
+  '',
+  'index.html',
+  'manifest.json',
+  'css/tokens.css',
+  'css/app.css',
+  'js/db.js',
+  'js/utils.js',
+  'js/capacidad.js',
+  'js/plantillas.js',
+  'js/views/forms.js',
+  'js/views/hoy.js',
+  'js/views/semana.js',
+  'js/views/portafolio.js',
+  'js/views/proyecto.js',
+  'js/views/subproyecto.js',
+  'js/views/config.js',
+  'js/app.js',
+  'icons/icon-192.png',
+  'icons/icon-512.png'
+].map(p => BASE + p);
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -46,7 +47,7 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(resp => {
-        if (resp && resp.status === 200 && resp.type === 'basic') {
+        if (resp && resp.status === 200 && (resp.type === 'basic' || resp.type === 'cors')) {
           const clone = resp.clone();
           caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
         }

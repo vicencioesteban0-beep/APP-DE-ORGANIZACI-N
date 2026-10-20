@@ -2,7 +2,7 @@
   "name": "Planificador ID",
   "short_name": "Planificador",
   "description": "Planificador personal de proyectos para diseñadores instruccionales",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
@@ -26,12 +26,12 @@
   "shortcuts": [
     {
       "name": "Hoy",
-      "url": "/#hoy",
+      "url": "./#hoy",
       "description": "Ver tareas de hoy"
     },
     {
       "name": "Semana",
-      "url": "/#semana",
+      "url": "./#semana",
       "description": "Ver semana"
     }
   ]
