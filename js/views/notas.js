@@ -578,11 +578,17 @@ Al término de la sesión, el participante podrá:
           <button class="editor-btn" title="Eliminar nota"
             onclick="Views.Notas._eliminarNota()" style="color:var(--c-replan)">🗑</button>
         </div>
+        <div class="editor-toolbar__group ai-group">
+          <button class="editor-btn ai-btn" title="Menú IA" onclick="Views.Notas._toggleAIMenu(event)">
+            ✨ <span style="font-size:10px;font-weight:600">IA</span>
+          </button>
+        </div>
         <div class="editor-tabs">
           <button class="editor-tab${!_modoPreview ? ' active' : ''}" onclick="Views.Notas._setPreview(false)">Editar</button>
           <button class="editor-tab${_modoPreview ? ' active' : ''}" onclick="Views.Notas._setPreview(true)">Vista previa</button>
         </div>
       </div>
+      <div id="ai-menu" class="ai-menu hidden"></div>
 
       <div class="editor-header">
         <input id="nota-titulo" class="editor-title" type="text"
@@ -953,6 +959,167 @@ Al término de la sesión, el participante podrá:
     }
   }
 
+  /* ── IA: menú desplegable ───────────────────────────────── */
+  const AI_ACCIONES = [
+    { id:'mejorar',       icon:'✨', label:'Mejorar texto',           desc:'Corrige y estructura la nota' },
+    { id:'resumir',       icon:'📋', label:'Resumir',                 desc:'Genera un resumen ejecutivo' },
+    { id:'transcripcion', icon:'🎙', label:'Mejorar transcripción',   desc:'Limpia texto de audio/video' },
+    { id:'objetivos',     icon:'🎯', label:'Generar objetivos',       desc:'Objetivos con taxonomía de Bloom' },
+    { id:'expandir',      icon:'💡', label:'Expandir notas',          desc:'Desarrolla ideas breves' },
+    { id:'acciones',      icon:'✅', label:'Extraer tareas',          desc:'Lista de compromisos y próximos pasos' },
+    { id:'evaluacion',    icon:'📊', label:'Generar evaluación',      desc:'5 preguntas de evaluación del aprendizaje' },
+  ];
+
+  function _toggleAIMenu(evt) {
+    evt.stopPropagation();
+    const menu = document.getElementById('ai-menu');
+    if (!menu) return;
+    if (!menu.classList.contains('hidden')) {
+      menu.classList.add('hidden');
+      return;
+    }
+    menu.innerHTML = `
+      <div class="ai-menu__header">✨ Asistente IA — Gemini</div>
+      ${AI_ACCIONES.map(a => `
+        <button class="ai-menu__item" onclick="Views.Notas._ejecutarIA('${a.id}')">
+          <span class="ai-menu__icon">${a.icon}</span>
+          <span>
+            <strong>${a.label}</strong>
+            <small>${a.desc}</small>
+          </span>
+        </button>`).join('')}
+      <div class="ai-menu__footer">
+        La respuesta <strong>reemplazará</strong> el contenido actual
+      </div>`;
+    menu.classList.remove('hidden');
+    // Cerrar al hacer clic fuera
+    setTimeout(() => {
+      document.addEventListener('click', function cerrar() {
+        menu.classList.add('hidden');
+        document.removeEventListener('click', cerrar);
+      }, { once: true });
+    }, 10);
+  }
+
+  async function _ejecutarIA(accion) {
+    const menu = document.getElementById('ai-menu');
+    if (menu) menu.classList.add('hidden');
+
+    if (!_notaActual) { Utils.toast('Abre una nota primero', 'warning'); return; }
+    const contenido = _notaActual.contenido || '';
+    if (!contenido.trim()) { Utils.toast('La nota está vacía', 'warning'); return; }
+
+    const a = AI_ACCIONES.find(x => x.id === accion);
+    _mostrarIALoading(a?.label || 'Procesando…');
+
+    try {
+      let resultado;
+      switch(accion) {
+        case 'mejorar':       resultado = await AI.mejorarTexto(contenido); break;
+        case 'resumir':       resultado = await AI.resumir(contenido); break;
+        case 'transcripcion': resultado = await AI.mejorarTranscripcion(contenido); break;
+        case 'objetivos':     resultado = await AI.generarObjetivos(contenido); break;
+        case 'expandir':      resultado = await AI.expandir(contenido); break;
+        case 'acciones':      resultado = await AI.extraerAcciones(contenido); break;
+        case 'evaluacion':    resultado = await AI.generarEvaluacion(contenido); break;
+        default: throw new Error('Acción desconocida');
+      }
+
+      _ocultarIALoading();
+
+      // Mostrar en modal con opción de aceptar/rechazar
+      _mostrarIAResultado(resultado, accion, a?.icon);
+
+    } catch(err) {
+      _ocultarIALoading();
+      const msg = err.message.includes('API key')
+        ? 'Configura tu API key en Configuración → IA'
+        : err.message;
+      Utils.toast('Error IA: ' + msg, 'danger');
+    }
+  }
+
+  function _mostrarIALoading(label) {
+    const fab = document.getElementById('fab');
+    if (fab) fab.disabled = true;
+    // Spinner en el botón IA
+    const aiBtn = document.querySelector('.ai-btn');
+    if (aiBtn) { aiBtn.innerHTML = '⏳'; aiBtn.disabled = true; }
+    // Toast de progreso
+    Utils.toast(`${label}…`, 'info', 30000);
+  }
+
+  function _ocultarIALoading() {
+    const aiBtn = document.querySelector('.ai-btn');
+    if (aiBtn) { aiBtn.innerHTML = '✨ <span style="font-size:10px;font-weight:600">IA</span>'; aiBtn.disabled = false; }
+    const fab = document.getElementById('fab');
+    if (fab) fab.disabled = false;
+    // Cerrar el toast de progreso
+    document.querySelectorAll('.toast').forEach(t => t.classList.remove('toast--visible'));
+  }
+
+  function _mostrarIAResultado(resultado, accion, icon) {
+    const html = `
+      <div class="modal-form ai-resultado">
+        <h2 class="modal-form__title">${icon || '✨'} Resultado de IA</h2>
+        <div class="ai-resultado__preview md-preview">${parseMd(resultado)}</div>
+        <div class="ai-resultado__raw hidden" id="ai-raw">
+          <textarea class="form-input form-textarea ai-raw-ta">${Utils.escape(resultado)}</textarea>
+        </div>
+        <div class="form-actions" style="flex-wrap:wrap;gap:var(--sp-2)">
+          <button class="btn btn--ghost btn--sm" onclick="Utils.closeModal()">Cancelar</button>
+          <button class="btn btn--ghost btn--sm" onclick="Views.Notas._toggleAIRaw()">Ver Markdown</button>
+          <button class="btn btn--outline btn--sm" onclick="Views.Notas._agregarAlFinal('${encodeURIComponent(resultado)}')">Agregar al final</button>
+          <button class="btn btn--primary" onclick="Views.Notas._aplicarIA('${encodeURIComponent(resultado)}')">Reemplazar nota</button>
+        </div>
+      </div>`;
+    Utils.modal(html);
+  }
+
+  function _toggleAIRaw() {
+    const preview = document.querySelector('.ai-resultado__preview');
+    const raw     = document.getElementById('ai-raw');
+    if (!preview || !raw) return;
+    const showingRaw = !raw.classList.contains('hidden');
+    raw.classList.toggle('hidden', showingRaw);
+    preview.classList.toggle('hidden', !showingRaw);
+  }
+
+  async function _aplicarIA(encoded) {
+    const texto = decodeURIComponent(encoded);
+    Utils.closeModal();
+    if (!_notaActual) return;
+    _notaActual.contenido = texto;
+    const ta = document.getElementById('nota-contenido');
+    if (ta) { ta.value = texto; }
+    _actualizarContadores(texto);
+    await DB.put(DB.S.N, _notaActual);
+    _guardado = true;
+    const el = document.getElementById('nota-save-status');
+    if (el) { el.textContent = 'Guardado'; el.className = 'editor-footer__save saved'; }
+    if (_modoPreview) {
+      const prev = document.getElementById('nota-preview');
+      if (prev) prev.innerHTML = parseMd(texto);
+    }
+    const lista = document.getElementById('notas-lista');
+    if (lista) await _renderLista(lista);
+    Utils.toast('Contenido actualizado ✓', 'success');
+  }
+
+  async function _agregarAlFinal(encoded) {
+    const texto = decodeURIComponent(encoded);
+    Utils.closeModal();
+    if (!_notaActual) return;
+    const separador = '\n\n---\n\n';
+    _notaActual.contenido = (_notaActual.contenido || '') + separador + texto;
+    const ta = document.getElementById('nota-contenido');
+    if (ta) { ta.value = _notaActual.contenido; }
+    _actualizarContadores(_notaActual.contenido);
+    await DB.put(DB.S.N, _notaActual);
+    _guardado = true;
+    Utils.toast('Agregado al final de la nota ✓', 'success');
+  }
+
   window.Views = window.Views || {};
   window.Views.Notas = {
     render,
@@ -971,6 +1138,11 @@ Al término de la sesión, el participante podrá:
     _fmt,
     _onBusqueda,
     _setFiltroTag,
+    _toggleAIMenu,
+    _ejecutarIA,
+    _aplicarIA,
+    _agregarAlFinal,
+    _toggleAIRaw,
   };
 
 })(window);

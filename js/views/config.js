@@ -2,7 +2,7 @@
   'use strict';
 
   async function render(container) {
-    const [margen, horaInicio, maxSubs, pctAmbar, calibN, tema, bloques, calibracion] = await Promise.all([
+    const [margen, horaInicio, maxSubs, pctAmbar, calibN, tema, bloques, calibracion, geminiKey] = await Promise.all([
       DB.getConfig('margenEstimado'),
       DB.getConfig('horaInicioObjetivo'),
       DB.getConfig('maxSubproyectosDia'),
@@ -10,7 +10,8 @@
       DB.getConfig('calibracionMediana'),
       DB.getConfig('tema'),
       Capacidad.getBloques(),
-      Capacidad.calibrar()
+      Capacidad.calibrar(),
+      DB.getConfig('geminiApiKey'),
     ]);
 
     const excHtml = await _renderExcepciones();
@@ -89,6 +90,40 @@
           <h2>Colaboradores</h2>
           <button class="btn btn--outline btn--sm" onclick="Views.Forms.nuevoColaborador()">+ Colaborador</button>
           <div id="config-colaboradores"></div>
+        </div>
+
+        <!-- Inteligencia Artificial -->
+        <div class="config-section">
+          <h2>Inteligencia Artificial — Gemini</h2>
+          <p class="form-hint">
+            La app usa la API de Google Gemini para mejorar textos, resumir notas y generar
+            objetivos de aprendizaje. Tu clave se guarda solo en este dispositivo.
+          </p>
+          <div class="form-group">
+            <label class="form-label">API Key de Gemini</label>
+            <div style="display:flex;gap:var(--sp-2)">
+              <input id="cfg-gemini-key" type="password" class="form-input"
+                placeholder="AQ.Ab8RN…"
+                value="${Utils.escape(geminiKey || '')}"
+                autocomplete="off" spellcheck="false">
+              <button class="btn btn--ghost btn--sm" id="cfg-gemini-toggle"
+                onclick="Views.Config._toggleKeyVisibility()"
+                title="Mostrar/ocultar">👁</button>
+            </div>
+            <span class="form-hint">
+              Obtenla en
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">
+                aistudio.google.com/app/apikey
+              </a>
+            </span>
+          </div>
+          <div style="display:flex;gap:var(--sp-2);align-items:center">
+            <button class="btn btn--primary" onclick="Views.Config._guardarGeminiKey()">Guardar clave</button>
+            <button class="btn btn--ghost btn--sm" onclick="Views.Config._testGemini()">Probar conexión</button>
+            <span id="cfg-gemini-status" class="form-hint" style="margin-left:var(--sp-2)">
+              ${geminiKey ? '🟢 Clave configurada' : '⚪ Sin configurar'}
+            </span>
+          </div>
         </div>
 
         <!-- Exportar / Importar -->
@@ -296,13 +331,44 @@
     input.click();
   }
 
+  async function _guardarGeminiKey() {
+    const key = document.getElementById('cfg-gemini-key').value.trim();
+    if (!key) { Utils.toast('Pega tu API key primero', 'warning'); return; }
+    await DB.setConfig('geminiApiKey', key);
+    const st = document.getElementById('cfg-gemini-status');
+    if (st) st.textContent = '🟢 Clave guardada';
+    Utils.toast('API key guardada', 'success');
+  }
+
+  async function _testGemini() {
+    const key = document.getElementById('cfg-gemini-key').value.trim();
+    if (!key) { Utils.toast('Primero ingresa la API key', 'warning'); return; }
+    const st = document.getElementById('cfg-gemini-status');
+    if (st) st.textContent = '⏳ Probando…';
+    try {
+      await AI.verificarKey(key);
+      if (st) st.textContent = '🟢 Conexión exitosa';
+      Utils.toast('Gemini conectado correctamente ✓', 'success');
+    } catch(err) {
+      if (st) st.textContent = '🔴 Error';
+      Utils.toast('Error: ' + err.message, 'danger');
+    }
+  }
+
+  function _toggleKeyVisibility() {
+    const inp = document.getElementById('cfg-gemini-key');
+    if (!inp) return;
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
   window.Views = window.Views || {};
   window.Views.Config = {
     render,
     _guardarGeneral, _aplicarMargen,
     _actualizarBloque, _eliminarBloque, _agregarBloque,
     _nuevaExcepcion, _eliminarExcepcion,
-    _exportar, _importar
+    _exportar, _importar,
+    _guardarGeminiKey, _testGemini, _toggleKeyVisibility,
   };
 
 })(window);
