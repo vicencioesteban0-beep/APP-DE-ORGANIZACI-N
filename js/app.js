@@ -9,6 +9,10 @@
 
     main.innerHTML = '<div class="loading">Cargando…</div>';
 
+    // Restore FAB default
+    const fab = document.getElementById('fab');
+    if (fab) { fab.setAttribute('aria-label','Agregar tarea'); fab.onclick = () => Views.Forms.nuevaTarea(); }
+
     // Highlight nav
     document.querySelectorAll('.nav-link').forEach(el => {
       el.classList.toggle('nav-link--active', hash.startsWith(el.dataset.view || el.getAttribute('href') || ''));
@@ -27,6 +31,10 @@
       } else if (hash.startsWith('#subproyecto/')) {
         const id = hash.replace('#subproyecto/', '');
         await Views.Subproyecto.render(main, id);
+      } else if (hash === '#notas') {
+        await Views.Notas.render(main);
+        const fab = document.getElementById('fab');
+        if (fab) { fab.setAttribute('aria-label','Nueva nota'); fab.onclick = () => Views.Notas._nuevaNota(); }
       } else if (hash === '#config') {
         await Views.Config.render(main);
       } else {

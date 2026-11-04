@@ -2,7 +2,7 @@
   'use strict';
 
   const DB_NAME = 'PlanificadorDB';
-  const DB_VERSION = 1;
+  const DB_VERSION = 2;
   let _db = null;
 
   function openDB() {
@@ -32,6 +32,7 @@
         makeStore('bloques',      ['tipo']);
         makeStore('excepciones',  ['fecha', 'tipo']);
         makeStore('metricas',     ['fecha', 'tipo']);
+        makeStore('notas',        ['proyectoId', 'fijada', 'plantilla']);
         makeKV('config');
       };
     });
@@ -171,6 +172,17 @@
     }
   }
 
+  async function buscarNotas(query) {
+    const all = await getAll('notas');
+    if (!query) return all;
+    const q = query.toLowerCase();
+    return all.filter(n =>
+      (n.titulo || '').toLowerCase().includes(q) ||
+      (n.contenido || '').toLowerCase().includes(q) ||
+      (n.tags || []).some(t => t.toLowerCase().includes(q))
+    );
+  }
+
   window.DB = {
     init, genId,
     getAll, getById, getByIndex,
@@ -179,8 +191,9 @@
     getTareasParaHoy,
     getTareasPorReplantear,
     getEsperandosVencidos,
+    buscarNotas,
     BLOQUES_DEFAULT,
-    S: { P:'proyectos', SP:'subproyectos', T:'tareas', C:'colaboradores', L:'lotes', B:'bloques', E:'excepciones', M:'metricas' }
+    S: { P:'proyectos', SP:'subproyectos', T:'tareas', C:'colaboradores', L:'lotes', B:'bloques', E:'excepciones', M:'metricas', N:'notas' }
   };
 
 })(window);
