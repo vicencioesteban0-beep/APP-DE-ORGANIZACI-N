@@ -1,0 +1,50 @@
+{
+  "name": "planificador-id",
+  "version": "1.0.0",
+  "description": "Planificador ID para Diseñadores Instruccionales",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac",
+    "build:dmg": "electron-builder --mac dmg",
+    "build:dir": "electron-builder --mac dir"
+  },
+  "build": {
+    "appId": "com.planificadorid.app",
+    "productName": "Planificador ID",
+    "copyright": "Copyright © 2026",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.icns",
+      "target": [
+        { "target": "dmg", "arch": ["x64", "arm64"] }
+      ],
+      "darkModeSupport": true,
+      "minimumSystemVersion": "12.0"
+    },
+    "dmg": {
+      "title": "Planificador ID",
+      "icon": "assets/icon.icns",
+      "background": "assets/dmg-bg.png",
+      "window": { "width": 540, "height": 380 },
+      "contents": [
+        { "x": 140, "y": 190, "type": "file" },
+        { "x": 400, "y": 190, "type": "link", "path": "/Applications" }
+      ]
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "assets/**",
+      "app/**"
+    ],
+    "extraResources": [
+      { "from": "../", "to": "app",
+        "filter": ["**/*", "!macos-app/**", "!node_modules/**", "!.git/**", "!*.md"] }
+    ]
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^25.0.0"
+  }
+}
